@@ -236,7 +236,7 @@ type
       destructor Destroy; override;
       procedure StartComm;
       procedure StopComm;
-      function WriteCommData( pDataToWrite: PChar; dwSizeofDataToWrite: Word ): Boolean;
+      function WriteCommData( pDataToWrite: PAnsiChar; dwSizeofDataToWrite: Word ): Boolean;
       function GetModemState : DWORD;
     published
       { Published declarations }
@@ -376,7 +376,7 @@ begin
      if (hCommFile <> 0) then
         raise ECommsError.Create( 'This serial port already opened' );
 
-     hNewCommFile := CreateFile( PChar(FCommName),
+     hNewCommFile := CreateFile( PChar('\\.\'+FCommName),
                                  GENERIC_READ or GENERIC_WRITE,
                                  0, {not shared}
                                  nil, {no security ??}
@@ -531,7 +531,7 @@ end; {TComm.StopComm}
 //    the job of the calling function to free the string.
 //
 //
-function TComm.WriteCommData( pDataToWrite: PChar; dwSizeofDataToWrite: Word ): Boolean;
+function TComm.WriteCommData( pDataToWrite: PAnsiChar; dwSizeofDataToWrite: Word ): Boolean;
 var
    Buffer: Pointer;
 begin
