@@ -1,9 +1,9 @@
 unit SPComm;
 //
-// ³o¬O¤@­Ó§Ç¦C°ğ³q°T¤¸¥ó, ¨Ñ Delphi 2.0 À³¥Îµ{¦¡¨Ï¥Î. ¾A¦X¥Î¨Ó°µ¤u·~±±¨î¤Î
-// Â²³æ¶Ç¿é. ¦¹¤¸¥ó©I¥s Win32 API ¨Ó¹F¦¨©Ò»İ¥\¯à, ½Ğ¨£Communications³¡¥÷¡C
+// é€™æ˜¯ä¸€å€‹åºåˆ—åŸ é€šè¨Šå…ƒä»¶, ä¾› Delphi 2.0 æ‡‰ç”¨ç¨‹å¼ä½¿ç”¨. é©åˆç”¨ä¾†åšå·¥æ¥­æ§åˆ¶åŠ
+// ç°¡å–®å‚³è¼¸. æ­¤å…ƒä»¶å‘¼å« Win32 API ä¾†é”æˆæ‰€éœ€åŠŸèƒ½, è«‹è¦‹Communicationséƒ¨ä»½ã€‚
 //
-// ¦¹¤¸¥ó°Ñ¦Ò David Wann. ©Ò»s§@ªº COMM32.PAS Version 1.0¡C­ì©l»¡©ú¦p¤U¡G
+// æ­¤å…ƒä»¶åƒè€ƒ David Wann. æ‰€è£½ä½œçš„ COMM32.PAS Version 1.0ã€‚åŸå§‹èªªæ˜å¦‚ä¸‹ï¼š
 // This Communications Component is implemented using separate Read and Write
 // threads. Messages from the threads are posted to the Comm control which is
 // an invisible window. To handle data from the comm port, simply
@@ -18,12 +18,12 @@ unit SPComm;
 // davidwann@hunterlink.net.au
 //
 //
-// ³o­Ó¤¸¥ó§¹¥ş§K¶O, Åwªï«ş¨©' ­×§ï©Î°µ¥ô¦ó¨ä¥¦¥Î³~. °£¤F³æ¿W³c½æ¦¹¤¸¥ó.
+// é€™å€‹å…ƒä»¶å®Œå…¨å…è²», æ­¡è¿æ‹·è²' ä¿®æ”¹æˆ–åšä»»ä½•å…¶å®ƒç”¨é€”. é™¤äº†å–®ç¨è²©è³£æ­¤å…ƒä»¶.
 // This component is totally free(copyleft), you can do anything in any
 // purpose EXCEPT SELL IT ALONE.
 //
 //
-// Author?: ¤p½Ş¤u§@«Ç Small-Pig Team         in Taiwan R.O.C.
+// Author?: å°è±¬å·¥ä½œå®¤ Small-Pig Team         in Taiwan R.O.C.
 // Email   : spigteam@vlsi.ice.cycu.edu.tw
 // Date ? : 1997/5/9
 //
