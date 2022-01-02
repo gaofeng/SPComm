@@ -1,4 +1,4 @@
 安装串口控件SPCOMM
 1. 打开pSPComm.dproj工程。
 2. 右键单击Project Manager窗体中的pSPComm.bpl并选择install。
-3. 添加SPComm工程所在路径到Options->Environment Options->Delhpi Options->Library - Win32->Library path中。
+3. 添加SPComm工程所在路径到Options->Language->Delphi->Library->Library path中。
