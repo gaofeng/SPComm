@@ -1,4 +1,4 @@
-unit SPComm;
+﻿unit SPComm;
 //
 // 這是一個序列埠通訊元件, 供 Delphi 2.0 應用程式使用. 適合用來做工業控制及
 // 簡單傳輸. 此元件呼叫 Win32 API 來達成所需功能, 請見Communications部份。
@@ -238,6 +238,7 @@ type
       procedure StopComm;
       function WriteCommData( pDataToWrite: PAnsiChar; dwSizeofDataToWrite: Word ): Boolean;
       function GetModemState : DWORD;
+      function GetVersion: string;
     published
       { Published declarations }
       property CommName: String read FCommName write FCommName;
@@ -256,7 +257,7 @@ type
       property XonLimit: WORD read FXonLimit write SetXonLimit;
       property XoffLimit: WORD read FXoffLimit write SetXoffLimit;
       property ByteSize: TByteSize read FByteSize write SetByteSize;
-      property Parity: TParity read FParity write FParity;
+      property Parity: TParity read FParity write SetParity;
       property StopBits: TStopBits read FStopBits write SetStopBits;
       property XonChar: AnsiChar read FXonChar write SetXonChar;
       property XoffChar: AnsiChar read FXoffChar write SetXoffChar;
@@ -463,8 +464,8 @@ begin
 
      WriteThread.Priority := tpHigher;
 
-     ReadThread.Resume;
-     WriteThread.Resume
+     ReadThread.Start;
+     WriteThread.Start;
 
      // Everything was created ok.  Ready to go!
 end; {TComm.StartComm}
@@ -1102,6 +1103,10 @@ begin
         _SetCommTimeout
 end;
 
+function TComm.GetVersion: string;
+begin
+  Result := 'V2.6';
+end;
 (******************************************************************************)
 //  READ THREAD
 (******************************************************************************)
