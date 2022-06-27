@@ -91,7 +91,11 @@ type
     TDtrControl = ( DtrEnable, DtrDisable, DtrHandshake );
     TRtsControl = ( RtsEnable, RtsDisable, RtsHandshake, RtsTransmissionAvailable );
 
-    ECommsError = class( Exception );
+    ECommsError = class( Exception )
+      public
+        var ErrorCode: DWORD;
+        constructor CreateCode(const Msg: string; ErrorCode: DWORD);
+    end;
     TReceiveDataEvent = procedure(Sender: TObject; Buffer: Pointer;
                                   BufferLength: Word) of object;
     TReceiveErrorEvent = procedure(Sender: TObject; EventMask : DWORD) of object;
@@ -293,6 +297,12 @@ procedure Register;
 
 implementation
 
+constructor ECommsError.CreateCode(const Msg: string; ErrorCode: DWORD);
+begin
+   Inherited Create(Msg);
+   self.ErrorCode := ErrorCode;
+end;
+
 (******************************************************************************)
 //   TComm PUBLIC METHODS
 (******************************************************************************)
@@ -386,7 +396,7 @@ begin
                                  0 {template} );
 
      if hNewCommFile = INVALID_HANDLE_VALUE then
-        raise ECommsError.Create( 'Error opening serial port' );
+        raise ECommsError.CreateCode( 'Error opening serial port', GetLastError());
 
      // Is this a valid comm handle?
      if GetFileType( hNewCommFile ) <> FILE_TYPE_CHAR then
@@ -732,6 +742,8 @@ var
    dcb:            Tdcb;
    commprop:       TCommProp;
    fdwEvtMask:     DWORD;
+   setResult:      boolean;
+   errCode:        DWORD;
 begin
      // Configure the comm settings.
      // NOTE: Most Comm settings can be set through TAPI, but this means that
@@ -802,7 +814,12 @@ begin
 
      dcb.ErrorChar := FReplacedChar;
 
-     SetCommState( hCommFile, dcb )
+     setResult := SetCommState( hCommFile, dcb );
+     if not setResult then
+     begin
+       errCode := GetLastError();
+       raise Exception.Create('SetCommState() Failed, error code is ' + IntToStr(errCode));
+     end;
 end;
 
 procedure TComm._SetCommTimeout;

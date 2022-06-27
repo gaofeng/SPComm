@@ -121,6 +121,7 @@
         <DCCReference Include="vcl.dcp"/>
         <DCCReference Include="rtl.dcp"/>
         <DCCReference Include="SPCOMM.PAS"/>
+        <None Include="README.MD"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
