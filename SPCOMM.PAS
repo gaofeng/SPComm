@@ -401,13 +401,13 @@ begin
      // Is this a valid comm handle?
      if GetFileType( hNewCommFile ) <> FILE_TYPE_CHAR then
      begin
-          CloseHandle( hNewCommFile );
+          FileClose(hNewCommFile );
           raise ECommsError.Create( 'File handle is not a comm handle ' )
      end;
 
      if not SetupComm( hNewCommFile, 4096, 4096 ) then
      begin
-          CloseHandle( hCommFile );
+          FileClose(hCommFile );
           raise ECommsError.Create( 'Cannot setup comm buffer' )
      end;
 
@@ -432,7 +432,7 @@ begin
 
      if hCloseEvent = 0 then
      begin
-          CloseHandle( hCommFile );
+          FileClose(hCommFile );
           hCommFile := 0;
           raise ECommsError.Create( 'Unable to create event' )
      end;
@@ -442,8 +442,8 @@ begin
         ReadThread := TReadThread.Create( True {suspended} );
      except
            ReadThread := nil;
-           CloseHandle( hCloseEvent );
-           CloseHandle( hCommFile );
+           FileClose(hCloseEvent );
+           FileClose(hCommFile );
            hCommFile := 0;
            raise ECommsError.Create( 'Unable to create read thread' )
      end;
@@ -462,8 +462,8 @@ begin
      except
            CloseReadThread;
            WriteThread := nil;
-           CloseHandle( hCloseEvent );
-           CloseHandle( hCommFile );
+           FileClose(hCloseEvent );
+           FileClose(hCommFile );
            hCommFile := 0;
            raise ECommsError.Create( 'Unable to create write thread' )
      end;
@@ -508,10 +508,10 @@ begin
      CloseWriteThread;
 
      // Not needed anymore.
-     CloseHandle( hCloseEvent );
+     FileClose(hCloseEvent );
 
      // Now close the comm port handle.
-     CloseHandle( hCommFile );
+     FileClose(hCommFile );
      hCommFile := 0
 end; {TComm.StopComm}
 
@@ -1279,8 +1279,8 @@ begin
  EndReadThread:
 
      PurgeComm( hCommFile, PURGE_RXABORT + PURGE_RXCLEAR );
-     CloseHandle( overlappedRead.hEvent );
-     CloseHandle( overlappedCommEvent.hEvent )
+     FileClose(overlappedRead.hEvent );
+     FileClose(overlappedCommEvent.hEvent );
 end; {TReadThread.Execute}
 
 //
@@ -1825,7 +1825,7 @@ EndWriteThread:
 
      PurgeComm(hCommFile, PURGE_TXABORT + PURGE_TXCLEAR);
      pFSendDataEmpty^ := True;
-     CloseHandle(overlappedWrite.hEvent)
+     FileClose(overlappedWrite.hEvent)
 end; {TWriteThread.Execute}
 
 
