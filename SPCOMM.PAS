@@ -1412,6 +1412,11 @@ begin
 
           Result := ReceiveData( lpszPostedBytes, dwSizeofBuffer )
      end
+     else
+     begin
+       // 此时读超时，返回成功，否则读线程会终止。
+       Result := True;
+     end;
 end; {TReadThread.HandleReadData}
 
 //
