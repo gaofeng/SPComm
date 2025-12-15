@@ -221,7 +221,7 @@ type
       procedure SetWriteTotalTimeoutConstant( v : DWORD );
 
       procedure CommWndProc( var msg: TMessage );
-      procedure _SetCommState;
+      function _SetCommState(): Integer;
       procedure _SetCommTimeout;
     protected
       { Protected declarations }
@@ -238,6 +238,7 @@ type
       property SendDataEmpty : Boolean read FSendDataEmpty;
       constructor Create( AOwner: TComponent ); override;
       destructor Destroy; override;
+      function IsOpened: Boolean;
       procedure StartComm;
       procedure StopComm;
       function WriteCommData( pDataToWrite: PAnsiChar; dwSizeofDataToWrite: Word ): Boolean;
@@ -356,6 +357,13 @@ begin
      inherited Destroy;
 end;
 
+function TComm.IsOpened: Boolean;
+begin
+  // SPComm 的 Handle 对应内部的 hCommFile
+  // 如果 Handle <> 0 且不等于 INVALID_HANDLE_VALUE (-1)，说明串口已开启
+  Result := (hCommFile <> 0) and (hCommFile <> INVALID_HANDLE_VALUE);
+end;
+
 //
 //  FUNCTION: StartComm
 //
@@ -382,6 +390,7 @@ end;
 procedure TComm.StartComm;
 var
    hNewCommFile:   THandle;
+   errorCode:      Integer;
 begin
      // Are we already doing comm?
      if (hCommFile <> 0) then
@@ -407,7 +416,7 @@ begin
 
      if not SetupComm( hNewCommFile, 4096, 4096 ) then
      begin
-          FileClose(hCommFile );
+          FileClose(hNewCommFile );
           raise ECommsError.Create( 'Cannot setup comm buffer' )
      end;
 
@@ -425,7 +434,13 @@ begin
      _SetCommTimeout;
 
      // Querying then setting the comm port configurations.
-     _SetCommState;
+     errorCode := _SetCommState();
+     if (errorCode > 0) then
+     begin
+       FileClose(hCommFile );
+       hCommFile := 0;
+       raise ECommsError.CreateCode( 'SetCommState error', errorCode )
+     end;
 
      // Create the event that will signal the threads to close.
      hCloseEvent := CreateEvent( nil, True, False, nil );
@@ -737,13 +752,12 @@ begin
      end
 end;
 
-procedure TComm._SetCommState;
+function TComm._SetCommState;
 var
    dcb:            Tdcb;
    commprop:       TCommProp;
    fdwEvtMask:     DWORD;
    setResult:      boolean;
-   errCode:        DWORD;
 begin
      // Configure the comm settings.
      // NOTE: Most Comm settings can be set through TAPI, but this means that
@@ -817,9 +831,10 @@ begin
      setResult := SetCommState( hCommFile, dcb );
      if not setResult then
      begin
-       errCode := GetLastError();
-       raise Exception.Create('SetCommState() Failed, error code is ' + IntToStr(errCode));
+       Result := GetLastError();
+       exit;
      end;
+     Result := 0;
 end;
 
 procedure TComm._SetCommTimeout;
@@ -846,14 +861,22 @@ begin
 end;
 
 procedure TComm.SetBaudRate( Rate : DWORD );
+var
+   OldRate: DWORD;
+   errorCode: Integer;
 begin
-     if Rate = FBaudRate then
-        Exit;
-
+     if Rate = FBaudRate then Exit;
+     OldRate := FBaudRate;
      FBaudRate := Rate;
 
-     if hCommFile <> 0 then
-        _SetCommState
+     if isOpened = False then Exit;
+     //如果串口已打开，修改参数。
+     errorCode := _SetCommState;
+     if (errorCode > 0) then
+     begin
+          FBaudRate := OldRate;
+          raise ECommsError.CreateCode( 'SetBaudRate error', errorCode )
+     end;
 end;
 
 procedure TComm.SetParityCheck( b : Boolean );
@@ -1000,14 +1023,23 @@ begin
 end;
 
 procedure TComm.SetByteSize( Size : TByteSize );
+var
+   OldSize: TByteSize;
+   errorCode: Integer;
 begin
      if Size = FByteSize then
         Exit;
-
+     OldSize := FByteSize;
      FByteSize := Size;
 
-     if hCommFile <> 0 then
-        _SetCommState
+     if isOpened = False then Exit;
+     //如果串口已打开，修改参数。
+     errorCode := _SetCommState;
+     if (errorCode > 0) then
+     begin
+          FByteSize := OldSize;
+          raise ECommsError.CreateCode( 'SetByteSize error', errorCode )
+     end;
 end;
 
 procedure TComm.SetParity( p : TParity );
@@ -1022,14 +1054,23 @@ begin
 end;
 
 procedure TComm.SetStopBits( Bits : TStopBits );
+var
+   OldBits:   TStopBits;
+   errorCode: Integer;
 begin
      if Bits = FStopBits then
         Exit;
-
+     OldBits := Bits;
      FStopBits := Bits;
 
-     if hCommFile <> 0 then
-        _SetCommState
+     if isOpened = False then Exit;
+     //如果串口已打开，修改参数。
+     errorCode := _SetCommState;
+     if (errorCode > 0) then
+     begin
+          FStopBits := OldBits;
+          raise ECommsError.CreateCode( 'SetStopBits error', errorCode )
+     end;
 end;
 
 procedure TComm.SetXonChar( c : AnsiChar );
